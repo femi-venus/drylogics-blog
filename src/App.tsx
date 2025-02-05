@@ -1,15 +1,31 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/SideBar';
 import BlogContent from './components/BlogContent';
-
+import NewBlogForm from './components/NewBlogForm';
 
 const App: React.FC = () => {
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
-      <Sidebar />
-      <BlogContent />
-    </Box>
+    <Router>
+      <Box sx={{ display: 'flex', height: '100vh' }}>
+        {/* <CssBaseline /> */}
+        <Sidebar />
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            bgcolor: '#f5f5f5',
+            padding: 3,
+          }}
+        >
+          <Routes>
+            <Route path="/blog" element={<BlogContent />} />
+            <Route path="/create" element={<NewBlogForm />} />
+          </Routes>
+        </Box>
+      </Box>
+    </Router>
   );
 };
 
