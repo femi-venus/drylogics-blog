@@ -3,7 +3,7 @@ import { Box, CssBaseline } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/SideBar';
 import BlogContent from './components/BlogContent';
-import NewBlogForm from './components/NewBlogForm';
+import BlogForm from './components/NewBlogForm';
 
 const App: React.FC = () => {
   return (
@@ -20,8 +20,10 @@ const App: React.FC = () => {
           }}
         >
           <Routes>
+            <Route path="/" element={<BlogContent />} />
             <Route path="/blog" element={<BlogContent />} />
-            <Route path="/create" element={<NewBlogForm />} />
+            <Route path="/create" element={<BlogForm />} />
+            <Route path="/blog/edit/:id" element={<BlogForm />} />
           </Routes>
         </Box>
       </Box>

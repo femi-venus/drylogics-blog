@@ -15,10 +15,10 @@ const Sidebar: React.FC = () => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
-          backgroundColor: '#37474f', // Darker background
-          color: '#ffffff', // White text
+          backgroundColor: '#808b96', // Darker background
+          color: '#808b96', // White text
           paddingTop: '20px',
-          boxShadow: '4px 0px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+          // boxShadow: '4px 0px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
         },
       }}
     >
@@ -32,7 +32,7 @@ const Sidebar: React.FC = () => {
         {/* Blog Item */}
         <ListItem component={Link} to="/blog" sx={{
           '&:hover': {
-            backgroundColor: '#5e35b1', // Hover effect
+            backgroundColor: '#999999', // Hover effect
             borderRadius: '5px',
           },
           padding: '10px 15px',
@@ -40,7 +40,7 @@ const Sidebar: React.FC = () => {
           <ListItemIcon sx={{ color: 'white' }}>
             <MenuIcon />
           </ListItemIcon>
-          <ListItemText primary="Blog" sx={{ color: 'white' }} />
+          <ListItemText primary="Blogs" sx={{ color: 'white' }} />
         </ListItem>
         
         {/* Add other menu items */}
