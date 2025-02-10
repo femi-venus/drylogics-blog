@@ -234,13 +234,3 @@ export function Toolbar({ editor, fullItem }: EditorToolbarProps) {
   );
 }
 
-
-
-
-
-
-
-
-
-
-
