@@ -1,30 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, Toolbar, Grid, Card, Stack, TextField } from '@mui/material';
+import { Box, Typography, Button, Toolbar, Grid, Card } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import BlogCard from './BlogCard';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
-import LoadingButton from '@mui/lab/LoadingButton';
+import { useNavigate } from 'react-router-dom';
 
-type BlogPost = {
-  id: number;
-  image?: string;
+export type BlogIndexEntry = {
   title: string;
-  content: string;
-  publishedBy: string;
-  publishedAt: string;
-  updatedAt: string;
+  publishedDate: string;
+  tags: string[];
+  filename: string;
 };
 
 function BlogContent() {
-  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [blogs, setBlogs] = useState<BlogIndexEntry[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get<BlogPost[]>('http://localhost:5000/api/blogs')
+    axios.get<BlogIndexEntry[]>('http://localhost:5000/api/index')
       .then(response => setBlogs(response.data))
-      .catch(error => console.error('Error fetching blogs:', error));
+      .catch(error => console.error('Error fetching index.yml:', error));
   }, []);
+
+
 
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#f5f5f5' }}>
@@ -41,7 +39,7 @@ function BlogContent() {
           position: 'fixed',
           top: 20,
           right: 20,
-          backgroundColor: '808b96',
+          backgroundColor: '#808b96',
           '&:hover': {
             backgroundColor: '#999999',
           },
@@ -49,20 +47,12 @@ function BlogContent() {
       >
         Create Blog
       </Button>
-
       <Grid container spacing={3} sx={{ marginTop: '60px' }}>
-        {blogs.map((post) => (
-          <Grid item xs={12} sm={6} md={4} key={post.id}>
-            <BlogCard
-              image={post.image || ''}
-              title={post.title}
-              description={post.content.substring(0, 100) + '...'}
-              createdBy={post.publishedBy}
-              createdAt={post.publishedAt}
-              updatedAt={post.updatedAt} id={post.id}            />
-          </Grid>
-        ))}
-      </Grid>
+      {blogs.map((post) => (
+      <BlogCard key={post.filename} title={post.title} publishedDate={post.publishedDate} tags={post.tags} filename={post.filename} />
+      ))
+    }
+    </Grid>
     </Box>
   );
 }

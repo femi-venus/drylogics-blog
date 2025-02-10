@@ -1,64 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Box, Card, Stack, TextField, Button, Input, Typography } from '@mui/material';
+import { Box, Card, Stack, TextField, Button, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FileUpload } from '@mui/icons-material';
+import { Editor } from './editor/editor';
+import type { BlogDetailData } from './BlogDetails';
 
 function BlogForm() {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { filename } = useParams<{ filename: string }>();
   const [formData, setFormData] = useState({
     title: '',
-    content: '',
     publishedBy: '',
-    image: null as File | null, 
+    content: '',
+    tags: ''
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      axios.get(`http://localhost:5000/api/blogs/${id}`)
-        .then(response => setFormData(response.data))
+    if (filename) {
+      axios.get<BlogDetailData>(`http://localhost:5000/api/blogs/${filename}`)
+        .then(response => {
+          const blog = response.data;
+          setFormData({
+            title: blog.title || '',
+            content: blog.content || '',
+            tags: blog.tags ? blog.tags.join(', ') : '',
+            publishedBy: blog.publishedBy || '' 
+          });
+        })
         .catch(error => console.error('Error fetching blog:', error));
     }
-  }, [id]);
+  }, [filename]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData({ ...formData, image: e.target.files[0] });
-    }
+  const handleContentChange = (newContent: string) => {
+    setFormData({ ...formData, content: newContent });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+  
     const formDataToSubmit = new FormData();
     formDataToSubmit.append('title', formData.title);
     formDataToSubmit.append('content', formData.content);
+    formDataToSubmit.append('tags', formData.tags);
     formDataToSubmit.append('publishedBy', formData.publishedBy);
-    if (formData.image) {
-      formDataToSubmit.append('image', formData.image);
-    }
-
+  
     try {
-      if (id) {
-        await axios.put(`http://localhost:5000/api/blogs/${id}`, formDataToSubmit);
+      if (filename) {
+        // Updating an existing blog, make sure the filename is passed in the URL
+        await axios.put(`http://localhost:5000/api/blogs/${filename}`, formDataToSubmit, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
       } else {
-        await axios.post('http://localhost:5000/api/blogs', formDataToSubmit);
+        // Creating a new blog, don't pass filename in the URL
+        await axios.post('http://localhost:5000/api/blogs', formDataToSubmit, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
       }
-      navigate('/blog');
+      navigate('/blog');  // Redirect after successful creation/update
     } catch (error) {
       console.error('Error submitting form:', error);
     }
     setLoading(false);
   };
+  
+  
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ p: 3, maxWidth: 600, mx: 'auto' }}>
@@ -71,43 +83,28 @@ function BlogForm() {
             onChange={handleChange}
             required
           />
-          <TextField
-            label="Content"
-            name="content"
+          <Editor
             value={formData.content}
-            onChange={handleChange}
-            multiline
-            rows={5}
-            required
+            onChange={handleContentChange}
+            placeholder="Content..."
+            showToolbar
           />
           <TextField
             label="Author"
-            name="publishedBy"
+            name="publishedBy"  // Use 'author' to match the formData key
             value={formData.publishedBy}
             onChange={handleChange}
             required
           />
-            <Button
-            variant="contained"
-            component="label"
-            sx={{ mt: 2 }}
-          >
-            Upload Image
-            <input
-              type="file"
-              hidden
-              onChange={handleImageChange}
-            />
-          </Button>
-          
-          {formData.image && (
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              {formData.image.name}
-            </Typography>
-          )}
-          <Button type="submit" variant="contained" fullWidth loading={loading}>
-            {id ? 'Update Blog' : 'Create Blog'}
-          </Button>
+          <TextField
+            label="Tags (comma-separated)"
+            name="tags"
+            value={formData.tags}
+            onChange={handleChange}
+          />
+          <LoadingButton type="submit" variant="contained" fullWidth loading={loading}>
+            {filename ? 'Update Blog' : 'Create Blog'}
+          </LoadingButton>
         </Stack>
       </Card>
     </Box>

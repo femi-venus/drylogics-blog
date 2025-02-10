@@ -3,41 +3,31 @@ import {
   Card,
   CardContent,
   CardMedia,
-  CardActions,
-  Button,
-  Typography,
-  Menu,
   MenuItem,
   IconButton,
-  Box,
+  Typography,
   Popover,
+  Box,
+  Grid,
+  Stack,
+  Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Icon } from "@iconify/react";
+import axios from "axios";
 
-interface BlogCardProps {
-  id: number;
-  image: string;
+type BlogIndexEntry = {
   title: string;
-  description: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-}
+  publishedDate: string;
+  tags: string[];
+  filename: string;
+};
 
-function BlogCard({
-  id,
-  image,
-  title,
-  description,
-  createdBy,
-  createdAt,
-  updatedAt,
-}: BlogCardProps) {
+function BlogCard({ title, publishedDate, tags, filename}: BlogIndexEntry) {
+  const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  // const navigate = useNavigate();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -47,14 +37,15 @@ function BlogCard({
     setAnchorEl(null);
   };
 
-  // const handleUpdate = () => {
-  //   navigate(`/create/${id}`);
-  //   handleMenuClose();
-  // };
+  const handleUpdate = (filename: string) => {
+    navigate(`/edit/${filename.replace(/\.yml$/, '')}`);
+  };
+  
+  
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/blogs/${id}`);
+      await axios.delete(`http://localhost:5000/api/blogs/${filename}`);
       alert("Blog deleted successfully");
       window.location.reload();
     } catch (error) {
@@ -66,82 +57,67 @@ function BlogCard({
 
   const open = Boolean(anchorEl);
 
-  console.log({ image });
+  const handleViewBlog = (filename: string) => {
+    navigate(`/blog/${filename.replace(/\.yml$/, '')}`);
+  };
+  
+  
   return (
-    <Card
-      sx={{ borderRadius: 2, boxShadow: 3, bgcolor: "#ffffff", height: "100%" }}
-    >
-      <Box sx={{ position: "relative" }}>
-        <CardMedia
-          component="img"
-          height="200"
-          image="https://api-dev-minimal-v630.pages.dev/assets/images/cover/cover-1.webp"
-          alt={title}
-        />
-        <IconButton
-          aria-label="Example"
-          onClick={handleMenuOpen}
+    <>
+      <Grid item xs={12} sm={6} md={4} >
+        <Card
+         
           sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            color: "#5e35b1",
-            "&:hover": { backgroundColor: "#f5f5f5" },
+            p: 3,
+            cursor: "pointer",
+            "&:hover": { boxShadow: 6 },
+          }}
+          key={filename}
+        >
+          <Stack direction='row' justifyContent='space-between'>
+          <Typography variant="h6" gutterBottom  onClick={() => handleViewBlog(filename)}>
+            {title}
+          </Typography>
+          <IconButton
+            aria-label="Example"
+            onClick={handleMenuOpen}
+          > <MoreVertIcon /></IconButton>
+        
+          </Stack>
+          <Typography variant="body2" color="textSecondary">
+            Published: {new Date(publishedDate).toLocaleDateString()}
+          </Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+            Tags: {tags.join(", ")}
+          </Typography>
+        </Card>
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
           }}
         >
-          <MoreVertIcon />
-        </IconButton>
-      </Box>
-      <CardContent>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 500,
-            color: "#000000",
-            fontSize: "bold",
-            fontStyle: "oblique",
-          }}
-        >
-          {title}
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#000000", marginTop: 1 }}>
-          {description}
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#000000", marginTop: 1 }}>
-          <strong>Created by:</strong> {createdBy}
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#000000", marginTop: 1 }}>
-          <strong>Created at</strong> {createdAt} & {""}
-          <strong>Updated at:</strong> {updatedAt}
-        </Typography>
-      </CardContent>
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleMenuClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
-        <MenuItem>
-          <Icon icon="solar:eye-bold" style={{ marginRight: 8 }} />
-          View
-        </MenuItem>
-        <MenuItem>
-          <Icon icon="solar:pen-bold" style={{ marginRight: 8 }} />
-          Update
-        </MenuItem>
-        <MenuItem onClick={handleDelete}>
-          <Icon icon="solar:trash-bin-trash-bold" style={{ marginRight: 8 }} />
-          Delete
-        </MenuItem>
-      </Popover>
-    </Card>
+          <MenuItem onClick={() => handleUpdate(filename)}>
+            <Icon icon="solar:pen-bold" style={{ marginRight: 8 }} />
+            Update
+          </MenuItem>
+          <MenuItem onClick={handleDelete}>
+            <Icon
+              icon="solar:trash-bin-trash-bold"
+              style={{ marginRight: 8 }}
+            />
+            Delete
+          </MenuItem>
+        </Popover>
+      </Grid>
+    </>
   );
 }
 

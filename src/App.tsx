@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/SideBar';
 import BlogContent from './components/BlogContent';
 import BlogForm from './components/NewBlogForm';
+import BlogDetail from './components/BlogDetails';
 
 const App: React.FC = () => {
   return (
@@ -23,7 +24,8 @@ const App: React.FC = () => {
             <Route path="/" element={<BlogContent />} />
             <Route path="/blog" element={<BlogContent />} />
             <Route path="/create" element={<BlogForm />} />
-            <Route path="/blog/edit/:id" element={<BlogForm />} />
+            <Route path="/edit/:filename" element={<BlogForm />} />
+            <Route path="/blog/:filename" element={<BlogDetail />} />
           </Routes>
         </Box>
       </Box>
