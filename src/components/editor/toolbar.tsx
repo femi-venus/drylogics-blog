@@ -17,7 +17,7 @@ import { varAlpha } from '../../theme/styles/utils';
  * https://remixicon.com
  */
 
-export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: EditorToolbarProps) {
+export function Toolbar({ editor, fullItem }: EditorToolbarProps) {
   if (!editor) {
     return null;
   }
@@ -223,11 +223,8 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
         <ToolbarItem
           aria-label="Fullscreen"
           className={editorClasses.toolbar.fullscreen}
-          onClick={onToggleFullScreen}
           icon={
-            fullScreen ? (
-              <path d="M18 7H22V9H16V3H18V7ZM8 9H2V7H6V3H8V9ZM18 17V21H16V15H22V17H18ZM8 15V21H6V17H2V15H8Z" />
-            ) : (
+           (
               <path d="M16 3H22V9H20V5H16V3ZM2 3H8V5H4V9H2V3ZM20 19V15H22V21H16V19H20ZM4 19H8V21H2V15H4V19Z" />
             )
           }

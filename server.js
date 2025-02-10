@@ -137,10 +137,8 @@ app.post('/api/blogs', upload.single('image'), (req, res) => {
 
 
 app.put('/api/blogs/:filename', upload.single('image'), (req, res) => {
-  console.log('Received filename:', req.params.filename); // Log the filename
 
-  const blogFilePath = path.join(BLOGS_YAML_DIR, req.params.filename);
-  console.log('Blog file path:', blogFilePath); // Log the full file path
+  const blogFilePath = path.join(BLOGS_YAML_DIR, `${req.params.filename}.yml`);
 
   if (!fs.existsSync(blogFilePath)) {
     return res.status(404).json({ message: 'Blog not found' });
@@ -157,14 +155,14 @@ app.put('/api/blogs/:filename', upload.single('image'), (req, res) => {
     updatedAt: new Date().toISOString(),
   };
 
-  fs.writeFileSync(blogFilePath, yaml.dump(updatedBlog)); // Save the updated blog content
+  fs.writeFileSync(blogFilePath, yaml.dump(updatedBlog)); 
 
-  // Update the index
   const blogs = getAllBlogs();
   updateIndexYaml(blogs);
 
-  res.json(updatedBlog); // Respond with updated blog data
+  res.json(updatedBlog); 
 });
+
 
 
 
