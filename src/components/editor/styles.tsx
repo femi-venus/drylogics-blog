@@ -5,7 +5,6 @@ import { styled } from '@mui/material/styles';
 
 
 import { editorClasses } from './classes';
-import { varAlpha } from '../../theme/styles/utils';
 
 // ----------------------------------------------------------------------
 

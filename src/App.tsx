@@ -1,10 +1,12 @@
 import React from 'react';
-import { Box, CssBaseline } from '@mui/material';
+import { Box } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/SideBar';
 import BlogContent from './components/BlogContent';
 import BlogForm from './components/NewBlogForm';
 import BlogDetail from './components/BlogDetails';
+import Categories from './components/Categories';
+import CategoryForm from './components/NewCategoryForm';
 
 const App: React.FC = () => {
   return (
@@ -23,8 +25,11 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<BlogContent />} />
             <Route path="/blog" element={<BlogContent />} />
-            <Route path="/create" element={<BlogForm />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/blog/create" element={<BlogForm />} />
+            <Route path="/categories/create" element={<CategoryForm />} />
             <Route path="/edit/:filename" element={<BlogForm />} />
+            <Route path="/edit/:category" element={<CategoryForm />} />
             <Route path="/blog/:filename" element={<BlogDetail />} />
           </Routes>
         </Box>

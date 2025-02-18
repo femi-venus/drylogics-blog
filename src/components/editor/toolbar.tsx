@@ -9,7 +9,6 @@ import { HeadingBlock } from './heading-block';
 import { ToolbarItem } from './toolbar-item';
 import { LinkBlock } from './link-block';
 import { ImageBlock } from './image-block';
-import { varAlpha } from '../../theme/styles/utils';
 
 // ----------------------------------------------------------------------
 

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.744.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@hookform/resolvers": "^3.10.0",
@@ -25,9 +26,11 @@
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "fs": "^0.0.1-security",
     "he": "^1.2.0",
     "js-yaml": "^4.1.0",
     "multer": "^1.4.5-lts.1",
+    "path": "^0.12.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.54.2",
@@ -37,6 +40,10 @@
     "yup": "^1.6.1"
   },
   "scripts": {
+    "frontend": "npm start",
+    "backend": "node server.js",
+    "watcher": "./s3_sync.sh",
+    "dev": "concurrently \"npm start\" \"node server.js\" \"./s3_sync.sh\"",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -59,5 +66,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/aws-sdk": "^2.7.4",
+    "concurrently": "^9.1.2"
   }
 }

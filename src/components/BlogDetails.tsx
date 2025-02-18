@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Toolbar, CircularProgress, Chip, Stack, Button } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Box, Typography, Toolbar, CircularProgress, Chip, Stack } from '@mui/material';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
-
 
 export type BlogDetailData = {
   title: string;
-  publishedBy:string;
+  publishedBy: string;
   publishedDate: string;
   updatedDate?: string;
   content: string;
+  image?: string;
+  category: string;
   tags: string[];
 };
 
@@ -29,7 +30,6 @@ function BlogDetail() {
         setLoading(false);
       });
   }, [filename]);
-
 
   if (loading) {
     return (
@@ -52,9 +52,25 @@ function BlogDetail() {
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#f5f5f5' }}>
       <Toolbar />
+
       <Typography variant="h3" gutterBottom sx={{ fontWeight: 700, color: '#333' }}>
         {blog.title}
       </Typography>
+
+      {blog.image && (
+        <Box
+          component="img"
+          src={`http://localhost:5000${blog.image}` }
+          alt={blog.title}
+          sx={{
+            width: '100%',
+            maxHeight: 400,
+            objectFit: 'cover',
+            borderRadius: 2,
+            mb: 3,
+          }}
+        />
+      )}
 
       <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
         <Typography variant="body2" color="textSecondary">
@@ -76,10 +92,8 @@ function BlogDetail() {
       <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8, mb: 3 }}>
         {blog.content}
       </Typography>
-
     </Box>
   );
 }
 
-
-export default BlogDetail
+export default BlogDetail;

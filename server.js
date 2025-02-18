@@ -5,16 +5,18 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const multer = require('multer');
 const yaml = require('js-yaml');
-const he = require('he'); 
+const he = require('he');
 
 const app = express();
 const PORT = 5000;
 const IMAGE_UPLOADS_DIR = path.join(__dirname, 'uploads');
 const BLOGS_YAML_DIR = path.join(__dirname, 'blogs');
 const INDEX_YAML_FILE = path.join(BLOGS_YAML_DIR, 'index.yml');
+const CATEGORIES_YAML_FILE = path.join(BLOGS_YAML_DIR, 'categories.yml');
 
 if (!fs.existsSync(IMAGE_UPLOADS_DIR)) fs.mkdirSync(IMAGE_UPLOADS_DIR);
 if (!fs.existsSync(BLOGS_YAML_DIR)) fs.mkdirSync(BLOGS_YAML_DIR);
+if (!fs.existsSync(CATEGORIES_YAML_FILE)) fs.writeFileSync(CATEGORIES_YAML_FILE, yaml.dump([]));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, IMAGE_UPLOADS_DIR),
@@ -28,24 +30,129 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static(IMAGE_UPLOADS_DIR));
 
+const getAllCategories = () => {
+  if (!fs.existsSync(CATEGORIES_YAML_FILE)) return [];
+  return yaml.load(fs.readFileSync(CATEGORIES_YAML_FILE, 'utf8')) || [];
+};
+
+const saveCategories = (categories) => {
+  fs.writeFileSync(CATEGORIES_YAML_FILE, yaml.dump(categories));
+};
+
+// ================== CATEGORIES CRUD ================== //
+
+// GET all categories
+app.get('/api/categories', (req, res) => {
+  if (!fs.existsSync(CATEGORIES_YAML_FILE)) return res.json([]);
+  const categories = yaml.load(fs.readFileSync(CATEGORIES_YAML_FILE, 'utf8')) || [];
+  res.json(categories);
+});
+
+// GET a single category by name
+app.get('/api/categories/:category', (req, res) => {
+  if (!fs.existsSync(CATEGORIES_YAML_FILE)) return res.status(404).json({ message: 'Category not found' });
+  const categories = yaml.load(fs.readFileSync(CATEGORIES_YAML_FILE, 'utf8')) || [];
+  const category = categories.find(cat => cat.category === req.params.category);
+  if (!category) return res.status(404).json({ message: 'Category not found' });
+  res.json(category);
+});
+
+// CREATE a new category
+app.post('/api/categories', (req, res) => {
+  try {
+    const { category, defaultTags } = req.body;
+    if (!category) return res.status(400).json({ message: 'Category name is required' });
+
+    let categories = [];
+    if (fs.existsSync(CATEGORIES_YAML_FILE)) {
+      const fileContent = fs.readFileSync(CATEGORIES_YAML_FILE, 'utf8');
+      categories = fileContent ? yaml.load(fileContent) || [] : [];
+    }
+
+    // Ensure `categories` is an array
+    if (!Array.isArray(categories)) categories = [];
+
+    // Check if category already exists
+    const existingIndex = categories.findIndex(cat => cat.category === category);
+    if (existingIndex !== -1) {
+      categories[existingIndex].defaultTags = Array.isArray(defaultTags)
+        ? defaultTags.map(tag => tag.trim())
+        : typeof defaultTags === 'string'
+        ? defaultTags.split(',').map(tag => tag.trim())
+        : [];
+    } else {
+      categories.push({
+        category,
+        defaultTags: Array.isArray(defaultTags)
+          ? defaultTags.map(tag => tag.trim())
+          : typeof defaultTags === 'string'
+          ? defaultTags.split(',').map(tag => tag.trim())
+          : [],
+      });
+    }
+
+    fs.writeFileSync(CATEGORIES_YAML_FILE, yaml.dump(categories));
+    res.status(201).json({ message: 'Category saved successfully', category });
+  } catch (error) {
+    console.error('Error creating category:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+// UPDATE an existing category
+app.put('/api/categories/:category', (req, res) => {
+  const categories = getAllCategories();
+  const categoryIndex = categories.findIndex(c => c.category === req.params.category);
+
+  if (categoryIndex === -1) return res.status(404).json({ message: 'Category not found' });
+
+  categories[categoryIndex] = {
+    category: req.body.category || categories[categoryIndex].category,
+    defaultTags: req.body.defaultTags ? req.body.defaultTags.split(',').map(tag => tag.trim()) : categories[categoryIndex].defaultTags,
+  };
+
+  saveCategories(categories);
+  res.json(categories[categoryIndex]);
+});
+
+// DELETE a category
+app.delete('/api/categories/:category', (req, res) => {
+  if (!fs.existsSync(CATEGORIES_YAML_FILE)) return res.status(404).json({ message: 'Category not found' });
+
+  let categories = yaml.load(fs.readFileSync(CATEGORIES_YAML_FILE, 'utf8')) || [];
+  const filteredCategories = categories.filter(cat => cat.category !== req.params.category);
+
+  if (filteredCategories.length === categories.length) return res.status(404).json({ message: 'Category not found' });
+
+  fs.writeFileSync(CATEGORIES_YAML_FILE, yaml.dump(filteredCategories));
+  res.status(204).send();
+});
+
+
+// ================== BLOG CRUD (Already in Place) ================== //
+
 const sanitizeTitle = (title) => title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
 const generateYamlFilename = (title, date) => `${sanitizeTitle(title)}-${date}.yml`;
 
 const saveBlogAsYaml = (blog) => {
-  const publishDate = blog.createdAt.split('T')[0]; 
+  const publishDate = blog.createdAt.split('T')[0];
   const filename = generateYamlFilename(blog.title, publishDate);
   const yamlContent = yaml.dump({
     title: blog.title,
     publishedBy: blog.publishedBy,
     publishedDate: blog.createdAt,
     tags: blog.tags || [],
-    content: `\n  ${blog.content.replace(/\n/g, '\n  ')}`, 
+    category: blog.category || null,  // ✅ Fix: Save category properly
+    content: `\n  ${blog.content.replace(/\n/g, '\n  ')}`,
     updatedDate: blog.updatedAt,
+    image: blog.image || null,
   });
 
   fs.writeFileSync(path.join(BLOGS_YAML_DIR, filename), yamlContent);
   return filename;
 };
+
 
 const getAllBlogs = () => {
   const files = fs.readdirSync(BLOGS_YAML_DIR).filter(file => file.endsWith('.yml') && file !== 'index.yml');
@@ -62,6 +169,7 @@ const updateIndexYaml = (blogs) => {
     publishedDate: blog.publishedDate,
     tags: blog.tags || [],
     filename: blog.yamlFilename,
+    image: blog.image || null,
   }));
   const yamlContent = yaml.dump(indexData);
   fs.writeFileSync(INDEX_YAML_FILE, yamlContent);
@@ -69,13 +177,14 @@ const updateIndexYaml = (blogs) => {
 
 const convertHtmlToText = (html) => {
   if (!html) return '';
-  let text = he.decode(html); 
-  text = text.replace(/<br\s*\/?>/g, '\n')    
-             .replace(/<\/p>/g, '\n\n')         
-             .replace(/<[^>]+>/g, '')          
-             .replace(/\n{3,}/g, '\n\n');   
+  let text = he.decode(html);
+  text = text.replace(/<br\s*\/?>/g, '\n')
+    .replace(/<\/p>/g, '\n\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\n{3,}/g, '\n\n');
   return text.trim();
 };
+
 
 app.get('/api/blogs', (req, res) => {
   const blogs = getAllBlogs();
@@ -114,21 +223,22 @@ app.post('/api/blogs', upload.single('image'), (req, res) => {
   try {
     const newBlog = {
       title: req.body.title,
-      content: req.body.content, 
+      content: req.body.content,
       publishedBy: req.body.publishedBy,
       tags: req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [],
-      image: req.file ? `/uploads/${req.file.filename}` : null,
+      category: req.body.category || "Uncategorized",  // ✅ Fix: Add category
+      image: req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    const yamlFilename = saveBlogAsYaml(newBlog); 
+    const yamlFilename = saveBlogAsYaml(newBlog);
     newBlog.yamlFilename = yamlFilename;
 
     const blogs = getAllBlogs();
     updateIndexYaml(blogs);
 
-    res.status(201).json(newBlog);  
+    res.status(201).json(newBlog);
   } catch (error) {
     console.error('Error in POST /api/blogs:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
@@ -137,7 +247,6 @@ app.post('/api/blogs', upload.single('image'), (req, res) => {
 
 
 app.put('/api/blogs/:filename', upload.single('image'), (req, res) => {
-
   const blogFilePath = path.join(BLOGS_YAML_DIR, `${req.params.filename}.yml`);
 
   if (!fs.existsSync(blogFilePath)) {
@@ -151,19 +260,18 @@ app.put('/api/blogs/:filename', upload.single('image'), (req, res) => {
     content: req.body.content,
     publishedBy: req.body.publishedBy,
     tags: req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : existingBlog.tags,
-    image: req.file ? `/uploads/${req.file.filename}` : existingBlog.image,
+    category: req.body.category || existingBlog.category || "Uncategorized",  // ✅ Fix: Update category
+    image: req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl || existingBlog.image,
     updatedAt: new Date().toISOString(),
   };
 
-  fs.writeFileSync(blogFilePath, yaml.dump(updatedBlog)); 
+  fs.writeFileSync(blogFilePath, yaml.dump(updatedBlog));
 
   const blogs = getAllBlogs();
   updateIndexYaml(blogs);
 
-  res.json(updatedBlog); 
+  res.json(updatedBlog);
 });
-
-
 
 
 app.delete('/api/blogs/:filename', (req, res) => {

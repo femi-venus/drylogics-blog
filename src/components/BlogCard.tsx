@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 import {
   Card,
-  CardContent,
-  CardMedia,
   MenuItem,
   IconButton,
   Typography,
   Popover,
-  Box,
   Grid,
   Stack,
-  Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -24,7 +20,7 @@ type BlogIndexEntry = {
   filename: string;
 };
 
-function BlogCard({ title, publishedDate, tags, filename}: BlogIndexEntry) {
+function BlogCard({ title, publishedDate, tags, filename }: BlogIndexEntry) {
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -38,10 +34,8 @@ function BlogCard({ title, publishedDate, tags, filename}: BlogIndexEntry) {
   };
 
   const handleUpdate = (filename: string) => {
-    navigate(`/edit/${filename.replace(/\.yml$/, '')}`);
+    navigate(`/edit/${filename.replace(/\.yml$/, "")}`);
   };
-  
-  
 
   const handleDelete = async () => {
     try {
@@ -58,37 +52,41 @@ function BlogCard({ title, publishedDate, tags, filename}: BlogIndexEntry) {
   const open = Boolean(anchorEl);
 
   const handleViewBlog = (filename: string) => {
-    navigate(`/blog/${filename.replace(/\.yml$/, '')}`);
+    navigate(`/blog/${filename.replace(/\.yml$/, "")}`);
   };
-  
-  
+
+  const truncateText = (text: string, maxLength: number) => {
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
+
   return (
     <>
-      <Grid item xs={12} sm={6} md={4} >
+      <Grid item xs={12} sm={6} md={4}>
         <Card
-         
           sx={{
             p: 3,
-            cursor: "pointer",
-            "&:hover": { boxShadow: 6 },
+            height: 100
           }}
           key={filename}
         >
-          <Stack direction='row' justifyContent='space-between'>
-          <Typography variant="h6" gutterBottom  onClick={() => handleViewBlog(filename)}>
-            {title}
-          </Typography>
-          <IconButton
-            aria-label="Example"
-            onClick={handleMenuOpen}
-          > <MoreVertIcon /></IconButton>
-        
+          <Stack direction="row" justifyContent="space-between">
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ cursor: "pointer", "&:hover": {fontWeight:'bold'} }}
+              onClick={() => handleViewBlog(filename)}
+            >
+              {truncateText(title, 30)}
+            </Typography>
+            <IconButton aria-label="Example" onClick={handleMenuOpen}>
+              <MoreVertIcon />
+            </IconButton>
           </Stack>
           <Typography variant="body2" color="textSecondary">
             Published: {new Date(publishedDate).toLocaleDateString()}
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-            Tags: {tags.join(", ")}
+            Tags: {truncateText(tags.join(", "), 40)}
           </Typography>
         </Card>
         <Popover

@@ -7,7 +7,6 @@ import ButtonBase, { buttonBaseClasses } from '@mui/material/ButtonBase';
 
 import { ToolbarItem } from './toolbar-item';
 import { EditorToolbarProps } from './types';
-import { varAlpha } from '../../theme/styles/utils';
 
 
 // ----------------------------------------------------------------------

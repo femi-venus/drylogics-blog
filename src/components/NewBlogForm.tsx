@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Box, Card, Stack, TextField } from "@mui/material";
+import { Box, Card, Stack, TextField, MenuItem } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { Editor } from "./editor/editor";  // Your custom editor component
+import { Editor } from "./editor/editor"; 
 import type { BlogDetailData } from "./BlogDetails";
 
 function BlogForm() {
@@ -14,14 +14,23 @@ function BlogForm() {
     publishedBy: "",
     content: "",
     tags: "",
+    category: "",
+    imageUrl: "",
   });
   const [loading, setLoading] = useState(false);
-  const [editorContent, setEditorContent] = useState(""); // Local state for editor
+  const [editorContent, setEditorContent] = useState(""); 
+  const [categories, setCategories] = useState<{ category: string; defaultTags: string[] }[]>([]);
+
+  useEffect(() => {
+    // Fetch available categories
+    axios.get("http://localhost:5000/api/categories")
+      .then((res) => setCategories(res.data))
+      .catch((error) => console.error("Error fetching categories:", error));
+  }, []);
 
   useEffect(() => {
     if (filename) {
-      axios
-        .get<BlogDetailData>(`http://localhost:5000/api/blogs/${filename}`)
+      axios.get<BlogDetailData>(`http://localhost:5000/api/blogs/${filename}`)
         .then((response) => {
           const blog = response.data;
           setFormData({
@@ -29,51 +38,71 @@ function BlogForm() {
             content: blog.content || "",
             tags: blog.tags ? blog.tags.join(", ") : "",
             publishedBy: blog.publishedBy || "",
+            category: blog.category || "",
+            imageUrl: blog.image || "",
           });
-          setEditorContent(blog.content || ""); // Sync editor with fetched blog content
+          setEditorContent(blog.content || ""); 
         })
         .catch((error) => console.error("Error fetching blog:", error));
     }
   }, [filename]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedCategory = e.target.value;
+    
+    setFormData(prev => {
+      // Fetch category-specific default tags (assuming you have access to them)
+      const categoryObj = categories.find(cat => cat.category === selectedCategory);
+      const newTagsArray = Array.from(new Set([
+        ...prev.tags.split(',').map(tag => tag.trim()),  // Convert existing tags to an array
+        ...(categoryObj?.defaultTags || []) // Add category default tags if available
+      ]));
+  
+      return {
+        ...prev,
+        category: selectedCategory,
+        tags: newTagsArray.join(', '), // Convert array back to a comma-separated string
+      };
+    });
+  };
+  
+
   const handleContentChange = (newContent: string) => {
-    setEditorContent(newContent);  // Update editor content
-    setFormData((prev) => ({ ...prev, content: newContent }));  // Update form data
+    setEditorContent(newContent); 
+    setFormData((prev) => ({ ...prev, content: newContent })); 
   };
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
   
-    console.log("Submitting Blog with filename:", filename); // Debugging log
-  
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("publishedBy", formData.publishedBy);
+      formDataToSend.append("content", editorContent);
+      formDataToSend.append("tags", formData.tags);
+      formDataToSend.append("category", formData.category);  // ✅ Fix: Ensure category is sent
+  
+      if (formData.imageUrl) {
+        formDataToSend.append("imageUrl", formData.imageUrl);
+      }
+  
       if (filename) {
-        console.log("Attempting to update blog with filename:", filename);
-        const response = await axios.put(
+        await axios.put(
           `http://localhost:5000/api/blogs/${filename}`,
-          { ...formData, content: editorContent },
-          {
-            headers: { "Content-Type": "application/json" },
-          }
+          formDataToSend,
+          { headers: { "Content-Type": "multipart/form-data" } }
         );
-        console.log("Update Response:", response.data); // Debugging log
       } else {
-        console.log("Creating new blog...");
-        const response = await axios.post(
-          "http://localhost:5000/api/blogs",
-          { ...formData, content: editorContent },
-          {
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        console.log("Create Response:", response.data); // Debugging log
+        await axios.post("http://localhost:5000/api/blogs", formDataToSend, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
       navigate("/blog");
     } catch (error) {
@@ -81,6 +110,8 @@ function BlogForm() {
     }
     setLoading(false);
   };
+  
+  
 
   return (
     <Box
@@ -97,10 +128,9 @@ function BlogForm() {
             onChange={handleChange}
             required
           />
-          {/* Pass editorContent to Editor component */}
           <Editor
-            value={editorContent}           // Passing current content to Editor
-            onChange={handleContentChange}  // Handle content changes
+            value={editorContent} 
+            onChange={handleContentChange} 
             showToolbar
           />
           <TextField
@@ -114,6 +144,25 @@ function BlogForm() {
             label="Tags (comma-separated)"
             name="tags"
             value={formData.tags}
+            onChange={handleChange}
+          />
+          <TextField
+            select
+            label="Category"
+            name="category"
+            value={formData.category}
+            onChange={handleCategoryChange}
+          >
+            {categories.map((cat) => (
+              <MenuItem key={cat.category} value={cat.category}>
+                {cat.category}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            label="Image URL"
+            name="imageUrl"
+            value={formData.imageUrl}
             onChange={handleChange}
           />
           <LoadingButton
