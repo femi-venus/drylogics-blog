@@ -1,21 +1,13 @@
 import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import { useTheme } from "@mui/material/styles";
 import Container from "@mui/material/Container";
 import { Playfair_Display } from "next/font/google";
 import Logo from "@/src/components/logo";
-import { bgBlur } from "@/src/theme/css";
-// import { useOffSetTop } from "src/hooks/use-off-set-top";
-// import { useResponsive } from "src/hooks/use-responsive";
-
-
 import { navConfig } from "./config-navigation";
 import { Typography } from "@mui/material";
 import { HEADER } from "./config-layout";
-import HeaderShadow from "../commons/header-shadow";
 import NavDesktop from "./desktop";
-import NavMobile from "./nav-mobile";
 import React from "react";
 
 // ----------------------------------------------------------------------
@@ -23,13 +15,15 @@ import React from "react";
 type Props = {
   headerOnDark: boolean;
 };
+
 export const textStyle = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
   style: ["normal"],
   display: 'swap',
 });
-// Define static styles outside component
+
+// Define static styles
 const containerStyles = {
   height: 1,
   display: "flex",
@@ -44,23 +38,23 @@ const logoWrapperStyles = {
   position: "relative",
 };
 
-export default function Header({ headerOnDark }: Props) {
-  const theme = useTheme();
+// Pre-defined static toolbar styles
+const baseToolbarStyles = {
+  height: {
+    xs: HEADER.H_MOBILE,
+    md: HEADER.H_DESKTOP,
+  },
+  transition: "height 200ms ease-in-out, background-color 200ms ease-in-out",
+};
 
-  // Memoize dynamic styles if they depend on props
-  const toolbarStyles = React.useMemo(() => ({
-    height: {
-      xs: HEADER.H_MOBILE,
-      md: HEADER.H_DESKTOP,
-    },
-    transition: theme.transitions.create(["height", "background-color"], {
-      easing: theme.transitions.easing.easeInOut,
-      duration: theme.transitions.duration.shorter,
-    }),
-    ...(headerOnDark && {
-      color: "common.white",
-    }),
-  }), [theme, headerOnDark]);
+const darkToolbarStyles = {
+  ...baseToolbarStyles,
+  color: "common.white",
+};
+
+export default function Header({ headerOnDark }: Props) {
+  // Use pre-defined styles based on headerOnDark prop
+  const toolbarStyles = headerOnDark ? darkToolbarStyles : baseToolbarStyles;
 
   return (
     <AppBar>
@@ -70,7 +64,7 @@ export default function Header({ headerOnDark }: Props) {
             <Logo sx={{ height: 100, width: 156 }} />
             <Typography
               sx={{
-                fontFamily: {textStyle},
+                fontFamily: textStyle.style.fontFamily,
                 fontSize: 30,
                 ml: 1,
                 color: "text.secondary",

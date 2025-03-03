@@ -1,14 +1,10 @@
+import { type FC } from 'react';
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import Carousel, {
-  CarouselArrows,
-  CarouselDots,
-  useCarousel,
-} from "@/src/components/carousel";
-import { ReactNode } from "react";
+import { Grid } from "@mui/material";
 import SvgColor from "@/src/components/svg-color";
 import TextMaxLine from "@/src/components/text-max-line";
 
@@ -18,7 +14,7 @@ const COLORS = ["primary", "secondary", "success", "warning", "success"] as cons
 const SERVICES = [
   {
     name: "Software Development",
-    icon: "/assets/images/process/document_storage.svg",
+    icon: "./assets/images/process/document_storage.svg",
     content: (
       <div>
         Mobile App Development
@@ -30,7 +26,7 @@ const SERVICES = [
   },
   {
     name: "Managed IT Services",
-    icon: "/assets/images/process/workflow_management.svg",
+    icon: "./assets/images/process/workflow_management.svg",
     content: (
       <div>
         Network Management <br />
@@ -42,7 +38,7 @@ const SERVICES = [
   },
   {
     name: "IT Consulting",
-    icon: "/assets/images/process/resource_management.svg",
+    icon: "./assets/images/process/resource_management.svg",
     content: (
       <div>
         Digital Transformation
@@ -58,7 +54,7 @@ const SERVICES = [
   },
   {
     name: "Digital Marketing",
-    icon: "/assets/images/process/capacity_planning.svg",
+    icon: "./assets/images/process/capacity_planning.svg",
     content: (
       <div>
         Content Marketing
@@ -74,7 +70,7 @@ const SERVICES = [
   },
   {
     name: "AI Solutions",
-    icon: "/assets/images/process/capacity_planning.svg",
+    icon: "./assets/images/process/capacity_planning.svg",
     content: (
       <div>
         AI-Powered Prospecting <br />
@@ -89,28 +85,65 @@ const SERVICES = [
 
 // ----------------------------------------------------------------------
 
-export default function MarketingLandingServices() {
-  // Manually define breakpoints for static-friendly behavior
-  const carousel = useCarousel({
-    slidesToShow: 3, // Default for desktop
-    slidesToScroll: 3,
-    adaptiveHeight: true,
-    responsive: [
-      {
-        breakpoint: 900, // Tablets
-        settings: { slidesToShow: 2, slidesToScroll: 2 },
-      },
-      {
-        breakpoint: 600, // Mobile
-        settings: { slidesToShow: 1, slidesToScroll: 1 },
-      },
-    ],
-    ...CarouselDots({
-      rounded: true,
-      sx: { mt: 5 },
-    }),
-  });
+type ServiceItemProps = {
+  service: {
+    name: string;
+    content: React.ReactNode;
+    path: string;
+    icon: string;
+  };
+  index: number;
+};
 
+const ServiceItem: FC<ServiceItemProps> = ({ service, index }) => {
+  const { name, icon, content } = service;
+  
+  return (
+    <Card
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        p: 4,
+        boxSizing: "border-box",
+      }}
+    >
+      <SvgColor
+        src={icon}
+        sx={{
+          width: 50,
+          height: 50,
+          mx: "auto",
+          color: (theme) => theme.palette[COLORS[index]].main,
+        }}
+      />
+      <Stack spacing={1} sx={{ my: 5, flexGrow: 1 }}>
+        <TextMaxLine
+          variant="h6"
+          sx={{
+            fontSize: { xs: "1.2rem", sm: "1.5rem" },
+            textAlign: "center",
+          }}
+        >
+          {name}
+        </TextMaxLine>
+        <TextMaxLine
+          variant="body2"
+          line={6}
+          sx={{
+            color: "text.secondary",
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+            textAlign: "center",
+          }}
+        >
+          {content}
+        </TextMaxLine>
+      </Stack>
+    </Card>
+  );
+};
+
+const MarketingLandingServices: FC = () => {
   return (
     <Container
       sx={{
@@ -136,98 +169,17 @@ export default function MarketingLandingServices() {
         </Typography>
       </Stack>
 
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Container sx={{ position: "relative", zIndex: 9 }}>
-          <CarouselArrows
-            onNext={carousel.onNext}
-            onPrev={carousel.onPrev}
-            leftButtonProps={{
-              sx: {
-                mt: -8,
-                left: 2,
-                opacity: 1,
-                color: "common.white",
-                bgcolor: "primary.main",
-                "&:hover": { bgcolor: "primary.main" },
-              },
-            }}
-            rightButtonProps={{
-              sx: {
-                mt: -8,
-                right: 2,
-                opacity: 1,
-                color: "common.white",
-                bgcolor: "primary.main",
-                "&:hover": { bgcolor: "primary.main" },
-              },
-            }}
-          >
-            <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
-              {SERVICES.map((service, index) => (
-                <ServiceItem key={index} service={service} index={index} />
-              ))}
-            </Carousel>
-          </CarouselArrows>
-        </Container>
+      <Box>
+        <Grid container spacing={3}>
+          {SERVICES.map((service, index) => (
+            <Grid item xs={12} sm={6} md={4} key={service.name}>
+              <ServiceItem service={service} index={index} />
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </Container>
   );
-}
-
-type ServiceItemProps = {
-  service: {
-    name: string | ReactNode;
-    content: string | ReactNode;
-    path: string;
-    icon: string;
-  };
-  index: number;
 };
 
-function ServiceItem({ service, index }: ServiceItemProps) {
-  const { name, icon, content } = service;
-  return (
-    <Card
-      sx={{
-        px: 4,
-        py: 5,
-        width: { xs: "90%", sm: "auto" },
-        mx: 1,
-        boxSizing: "border-box",
-      }}
-    >
-      <SvgColor
-        src={icon}
-        sx={{
-          width: 50,
-          height: 50,
-          mx: "auto",
-          display: "block",
-          color: (theme) => theme.palette[COLORS[index]].main,
-        }}
-      />
-      <Stack spacing={1} sx={{ my: 5 }}>
-        <TextMaxLine
-          variant="h6"
-          sx={{
-            fontSize: { xs: "1.2rem", sm: "1.5rem" },
-            textAlign: "center",
-          }}
-        >
-          {name}
-        </TextMaxLine>
-        <TextMaxLine
-          variant="body2"
-          line={6}
-          sx={{
-            color: "text.secondary",
-            fontSize: { xs: "0.875rem", sm: "1rem" },
-            textAlign: "center",
-          }}
-        >
-          {content}
-        </TextMaxLine>
-      </Stack>
-    </Card>
-  );
-}
+export default MarketingLandingServices;

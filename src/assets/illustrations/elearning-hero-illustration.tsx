@@ -5,7 +5,7 @@ import Box, { BoxProps } from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 
-import Image from 'src/components/image';
+import Image from '@/src/components/image';
 
 import Icon from './pattern/icon';
 import Shape from './pattern/shape';

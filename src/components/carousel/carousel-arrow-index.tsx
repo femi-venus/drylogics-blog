@@ -40,7 +40,7 @@ const StyledIconButton = styled(IconButton)({
 type Props = {
   index: number;
   total: number;
-  icon?: IconifyProps; // Right icon
+  icon?: string; // Right icon
   onNext?: VoidFunction;
   onPrev?: VoidFunction;
   sx?: SxProps<Theme>;

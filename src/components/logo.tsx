@@ -148,7 +148,7 @@ function Logo({ single = false, }: LogoProps) {
       aria-label="go to homepage"
       sx={{ lineHeight: 0 }}
     >
-      <Image src="./assets/logo/drylogics_logo.svg" alt="Drylogics" height={60} width={20} />
+      <Image src={"/assets/logo/drylogics_logo.svg"} alt="Drylogics" height={60} width={20} />
     </Link>
   );
 }

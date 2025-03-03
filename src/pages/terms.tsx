@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   Typography,
   Box,
@@ -25,7 +25,7 @@ const TermsOfService = () => {
         backgroundColor: "background.default",
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth="md">
         <Paper
           elevation={3}
           sx={{
@@ -36,31 +36,23 @@ const TermsOfService = () => {
         >
           {/* Title */}
           <Typography
-            variant="h3"
+            variant="h4"
             component="h1"
-            sx={{
-              fontWeight: "bold",
-              textAlign: "center",
-              marginBottom: 4,
-              color: "text.primary",
-            }}
+            gutterBottom
+            sx={{ fontWeight: "bold", textAlign: "center" }}
           >
             Terms of Service
           </Typography>
-
+          <Divider sx={{ my: 3 }} />
+          
           {/* Effective Date */}
           <Typography
-            variant="body1"
-            sx={{
-              textAlign: "center",
-              marginBottom: 3,
-              color: "text.secondary",
-            }}
+            variant="subtitle1"
+            paragraph
+            sx={{ textAlign: "center", color: "text.secondary" }}
           >
-            <strong>Effective Date:</strong> 01-01-2025
+            Effective Date: <strong>01-01-2025</strong>
           </Typography>
-
-          <Divider sx={{ marginBottom: 4 }} />
 
           {/* Introduction */}
           <Typography variant="body1" paragraph>
@@ -77,43 +69,37 @@ const TermsOfService = () => {
             <Grid item xs={12}>
               <Typography
                 variant="h5"
-                sx={{ fontWeight: "bold", marginBottom: 2 }}
+                gutterBottom
+                sx={{ fontWeight: "bold", mt: 4 }}
               >
                 1. Acceptance of Terms
               </Typography>
               <Typography variant="body1" paragraph>
                 By using the Software, you:
               </Typography>
-              <ul>
-                <Typography
-                  component="li"
-                  variant="body1"
-                  sx={{ marginBottom: 1 }}
-                >
+              <Box component="ul" sx={{ pl: 4 }}>
+                <Typography component="li" variant="body1" paragraph>
                   Represent that you are at least 18 years of age or have the
                   legal capacity to enter into agreements.
                 </Typography>
-                <Typography
-                  component="li"
-                  variant="body1"
-                  sx={{ marginBottom: 1 }}
-                >
+                <Typography component="li" variant="body1" paragraph>
                   Agree to comply with these Terms and all applicable laws and
                   regulations.
                 </Typography>
-              </ul>
+              </Box>
             </Grid>
 
             {/* Section 2 */}
             <Grid item xs={12}>
               <Typography
                 variant="h5"
-                sx={{ fontWeight: "bold", marginBottom: 2 }}
+                gutterBottom
+                sx={{ fontWeight: "bold", mt: 4 }}
               >
                 2. License to Use the Software
               </Typography>
               <Typography variant="body1" paragraph>
-                - Merkensoft grants you a non-exclusive, non-transferable,
+                - Drylogic Solutions grants you a non-exclusive, non-transferable,
                 revocable license to use the Software for the duration of your
                 subscription.
                 <br />- The license is for team use only and is subject to any
@@ -125,57 +111,43 @@ const TermsOfService = () => {
             <Grid item xs={12}>
               <Typography
                 variant="h5"
-                sx={{ fontWeight: "bold", marginBottom: 2 }}
+                gutterBottom
+                sx={{ fontWeight: "bold", mt: 4 }}
               >
                 3. Restrictions
               </Typography>
               <Typography variant="body1" paragraph>
                 You agree not to:
               </Typography>
-              <ul>
-                <Typography
-                  component="li"
-                  variant="body1"
-                  sx={{ marginBottom: 1 }}
-                >
+              <Box component="ul" sx={{ pl: 4 }}>
+                <Typography component="li" variant="body1" paragraph>
                   Reverse engineer, decompile, or disassemble the Software.
                 </Typography>
-                <Typography
-                  component="li"
-                  variant="body1"
-                  sx={{ marginBottom: 1 }}
-                >
+                <Typography component="li" variant="body1" paragraph>
                   Modify, reproduce, or distribute the Software.
                 </Typography>
-                <Typography
-                  component="li"
-                  variant="body1"
-                  sx={{ marginBottom: 1 }}
-                >
+                <Typography component="li" variant="body1" paragraph>
                   Use the Software for unlawful or unauthorized purposes.
                 </Typography>
-                <Typography
-                  component="li"
-                  variant="body1"
-                  sx={{ marginBottom: 1 }}
-                >
+                <Typography component="li" variant="body1" paragraph>
                   Transfer or sublicense your license to any third party without
                   prior written consent.
                 </Typography>
-              </ul>
+              </Box>
             </Grid>
 
             {/* Section 4 */}
             <Grid item xs={12}>
               <Typography
                 variant="h5"
-                sx={{ fontWeight: "bold", marginBottom: 2 }}
+                gutterBottom
+                sx={{ fontWeight: "bold", mt: 4 }}
               >
                 4. Ownership and Intellectual Property
               </Typography>
               <Typography variant="body1" paragraph>
                 - The Software, including its underlying code, design, and
-                features, is the exclusive property of Merkensoft.
+                features, is the exclusive property of Drylogic Solutions.
                 <br />- All customer data input into the Software belongs to the
                 customer.
                 <br />- The use of open-source components is subject to their
@@ -189,7 +161,8 @@ const TermsOfService = () => {
             <Grid item xs={12}>
               <Typography
                 variant="h5"
-                sx={{ fontWeight: "bold", marginBottom: 2 }}
+                gutterBottom
+                sx={{ fontWeight: "bold", mt: 4 }}
               >
                 11. Privacy Policy
               </Typography>
@@ -206,15 +179,15 @@ const TermsOfService = () => {
             <Grid item xs={12}>
               <Typography
                 variant="h5"
-                sx={{ fontWeight: "bold", marginBottom: 2 }}
+                gutterBottom
+                sx={{ fontWeight: "bold", mt: 4 }}
               >
                 13. Contact Information
               </Typography>
               <Typography variant="body1" paragraph>
-                For questions or concerns about these Terms, please contact us
-                at:
+                For questions or concerns about these Terms, please contact us at:
                 <br />
-                <strong>Merkensoft</strong>
+                <strong>Drylogic Solutions</strong>
                 <br />
                 Email: [Insert Contact Email]
                 <br />
@@ -224,16 +197,15 @@ const TermsOfService = () => {
           </Grid>
 
           <Divider sx={{ my: 4 }} />
-
+          
           {/* Footer */}
           <Typography
-            variant="body2"
-            sx={{
-              textAlign: "center",
-              color: "text.secondary",
-            }}
+            variant="body1"
+            paragraph
+            sx={{ textAlign: "center", color: "text.secondary" }}
           >
-            {/* &copy; {new Date().getFullYear()} Merkensoft. All rights reserved. */}
+            For questions or concerns, contact us at{" "}
+            <strong>[Insert Email]</strong>.
           </Typography>
         </Paper>
       </Container>

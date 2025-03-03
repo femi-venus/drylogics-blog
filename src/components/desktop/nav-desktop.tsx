@@ -11,6 +11,7 @@ export default function NavDesktop({ data, sx }: NavProps) {
       component="nav"
       direction="row"
       spacing={5}
+      pt={3}
       sx={{
         height: 1,
         ...sx,

@@ -52,7 +52,7 @@ interface Props extends StackProps {
   shape?: 'circular' | 'rounded';
   filled?: boolean;
   children?: React.ReactNode;
-  icon?: IconifyProps; // Right icon
+  icon?: string; // Right icon
   onNext?: VoidFunction;
   onPrev?: VoidFunction;
   leftButtonProps?: IconButtonProps;

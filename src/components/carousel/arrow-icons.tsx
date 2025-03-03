@@ -3,7 +3,7 @@ import Iconify, { IconifyProps } from '../iconify';
 // ----------------------------------------------------------------------
 
 type Props = {
-  icon?: IconifyProps; // Right icon
+  icon?: string; // Right icon
   isRTL?: boolean;
 };
 

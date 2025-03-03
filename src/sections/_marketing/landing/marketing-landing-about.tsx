@@ -73,7 +73,7 @@ export default function MarketingLandingAbout() {
                 Expert Software Development Engineers
               </Typography>
 
-              <Typography sx={{ color: "common.black" }}>
+              <Typography sx={{ color: "common.black", pt: 10, lineHeight: 2, fontSize: 18}}>
                 Welcome to our world of excellence, where our expert software
                 development engineers are dedicated to crafting innovative
                 solutions tailored to elevate your business. With a wealth of
