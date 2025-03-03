@@ -15,10 +15,9 @@ const TermsOfService = () => {
   const paths = {
     privacy: "/privacy",
   };
-  const theme = createTheme();
+ 
 
   return (
-    <ThemeProvider theme={theme}>
     <Box
       sx={{
         py: 6,
@@ -210,7 +209,6 @@ const TermsOfService = () => {
         </Paper>
       </Container>
     </Box>
-    </ThemeProvider>
   )
 };
 

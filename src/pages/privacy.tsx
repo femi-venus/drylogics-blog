@@ -3,6 +3,7 @@ import { Typography, Box, Container, Divider, Paper } from "@mui/material";
 
 const PrivacyPolicy = () => {
   return (
+  
     <Box
       sx={{
         backgroundColor: "background.default",
@@ -220,6 +221,7 @@ const PrivacyPolicy = () => {
         </Paper>
       </Container>
     </Box>
+   
   );
 };
 

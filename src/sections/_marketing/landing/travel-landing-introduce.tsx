@@ -50,23 +50,19 @@ const BOTTOM = [
 // ----------------------------------------------------------------------
 
 export default function TravelLandingIntroduce() {
-  const theme = useTheme();
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
 
 
   return (
     <Box
       sx={{
         ...bgBlur({
-          color: theme.palette.common.white,
+          color: "#fff",
         }),
         pt: { xs: 2.5, md: 3.7 },
         pb: { xs: 5, md: 10 },
       }}
     >
-      <Container ref={containerRef}>
+      <Container>
         <Stack
           spacing={3}
           sx={{

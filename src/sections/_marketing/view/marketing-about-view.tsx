@@ -1,4 +1,4 @@
-'use client';
+
 
 import { _members, _brandsColor, _testimonials } from '@/src/_mock';
 

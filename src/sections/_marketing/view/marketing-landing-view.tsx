@@ -1,4 +1,3 @@
-'use client';
 
 import MarketingLandingHero from '../landing/marketing-landing-hero';
 import MarketingLandingAbout from '../landing/marketing-landing-about';
