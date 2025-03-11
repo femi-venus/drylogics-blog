@@ -129,9 +129,12 @@ function BlogForm() {
             required
           />
           <Editor
-            value={editorContent} 
-            onChange={handleContentChange} 
+            value={editorContent}
+            onChange={handleContentChange}
             showToolbar
+            error={false}
+            helperText=""
+            sx={{ mb: 2 }}
           />
           <TextField
             label="Author"

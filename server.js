@@ -170,6 +170,7 @@ const updateIndexYaml = (blogs) => {
     tags: blog.tags || [],
     filename: blog.yamlFilename,
     image: blog.image || null,
+    category: blog.category || null,
   }));
   const yamlContent = yaml.dump(indexData);
   fs.writeFileSync(INDEX_YAML_FILE, yamlContent);
@@ -191,7 +192,7 @@ app.get('/api/blogs', (req, res) => {
   
   const blogsWithPublishedBy = blogs.map(blog => ({
     ...blog,
-    publishedBy: blog.publishedBy || 'Unknown Author' 
+    publishedBy: blog.publishedBy || 'Unknown Author',
   }));
 
   res.json(blogsWithPublishedBy);
