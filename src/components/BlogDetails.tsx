@@ -1,7 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Toolbar, CircularProgress, Chip, Stack } from '@mui/material';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Toolbar,
+  CircularProgress,
+  Chip,
+  Stack,
+} from "@mui/material";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 export type BlogDetailData = {
   title: string;
@@ -18,22 +25,30 @@ function BlogDetail() {
   const { filename } = useParams<{ filename: string }>();
   const [blog, setBlog] = useState<BlogDetailData | null>(null);
   const [loading, setLoading] = useState(true);
-
+  console.log({ blog });
   useEffect(() => {
-    axios.get<BlogDetailData>(`http://localhost:5000/api/blogs/${filename}`)
-      .then(response => {
+    axios
+      .get<BlogDetailData>(`http://localhost:5000/api/blogs/${filename}`)
+      .then((response) => {
         setBlog(response.data);
         setLoading(false);
       })
-      .catch(error => {
-        console.error('Error fetching blog:', error);
+      .catch((error) => {
+        console.error("Error fetching blog:", error);
         setLoading(false);
       });
   }, [filename]);
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -50,22 +65,26 @@ function BlogDetail() {
   }
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#f5f5f5' }}>
+    <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: "#f5f5f5" }}>
       <Toolbar />
 
-      <Typography variant="h3" gutterBottom sx={{ fontWeight: 700, color: '#333' }}>
+      <Typography
+        variant="h3"
+        gutterBottom
+        sx={{ fontWeight: 700, color: "#333" }}
+      >
         {blog.title}
       </Typography>
 
       {blog.image && (
         <Box
           component="img"
-          src={`http://localhost:5000${blog.image}` }
+          src={`http://localhost:5000${blog.image}`}
           alt={blog.title}
           sx={{
-            width: '100%',
+            width: "100%",
             maxHeight: 400,
-            objectFit: 'cover',
+            objectFit: "cover",
             borderRadius: 2,
             mb: 3,
           }}
@@ -85,13 +104,20 @@ function BlogDetail() {
 
       <Stack direction="row" spacing={1} sx={{ mb: 3 }}>
         {blog.tags.map((tag, index) => (
-          <Chip key={index} label={tag} size="small" sx={{ backgroundColor: '#e0e0e0' }} />
+          <Chip
+            key={index}
+            label={tag}
+            size="small"
+            sx={{ backgroundColor: "#e0e0e0" }}
+          />
         ))}
       </Stack>
 
-      <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8, mb: 3 }}>
-        {blog.content}
-      </Typography>
+      <Typography
+        variant="body1"
+        sx={{ whiteSpace: "pre-wrap", lineHeight: 1.8, mb: 3 }}
+        dangerouslySetInnerHTML={{ __html: blog.content }} // ✅ Render HTML safely
+      />
     </Box>
   );
 }

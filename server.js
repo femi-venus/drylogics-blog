@@ -179,15 +179,6 @@ const updateIndexYaml = (blogs) => {
   fs.writeFileSync(INDEX_YAML_FILE, yamlContent);
 };
 
-const convertHtmlToText = (html) => {
-  if (!html) return '';
-  let text = he.decode(html);
-  text = text.replace(/<br\s*\/?>/g, '\n')
-    .replace(/<\/p>/g, '\n\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/\n{3,}/g, '\n\n');
-  return text.trim();
-};
 
 
 app.get('/api/blogs', (req, res) => {
@@ -213,7 +204,7 @@ app.get('/api/blogs/:filename', (req, res) => {
 
   try {
     const blogContent = yaml.load(fs.readFileSync(blogFilePath, 'utf8'));
-    const plainTextContent = convertHtmlToText(blogContent.content);
+    const plainTextContent = blogContent.content;
 
     res.json({ ...blogContent, content: plainTextContent });
   } catch (error) {

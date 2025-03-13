@@ -20,7 +20,7 @@ function BlogForm() {
   const [loading, setLoading] = useState(false);
   const [editorContent, setEditorContent] = useState(""); 
   const [categories, setCategories] = useState<{ category: string; defaultTags: string[] }[]>([]);
-
+ 
   useEffect(() => {
     // Fetch available categories
     axios.get("http://localhost:5000/api/categories")
@@ -33,6 +33,7 @@ function BlogForm() {
       axios.get<BlogDetailData>(`http://localhost:5000/api/blogs/${filename}`)
         .then((response) => {
           const blog = response.data;
+          console.log({blog})
           setFormData({
             title: blog.title || "",
             content: blog.content || "",
