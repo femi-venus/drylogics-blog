@@ -143,9 +143,10 @@ const saveBlogAsYaml = (blog) => {
     publishedBy: blog.publishedBy,
     publishedDate: blog.createdAt,
     tags: blog.tags || [],
-    category: blog.category || null,  // ✅ Fix: Save category properly
+    category: blog.category || null,
     content: `\n  ${blog.content.replace(/\n/g, '\n  ')}`,
     updatedDate: blog.updatedAt,
+    deletedAt: blog.deletedAt || null,
     image: blog.image || null,
   });
 
@@ -160,18 +161,20 @@ const getAllBlogs = () => {
     const filePath = path.join(BLOGS_YAML_DIR, file);
     const content = yaml.load(fs.readFileSync(filePath, 'utf8'));
     return { ...content, yamlFilename: file };
-  });
+  }).filter(blog => !blog.deletedAt);
 };
 
 const updateIndexYaml = (blogs) => {
-  const indexData = blogs.filter(blog => blog.title && blog.yamlFilename).map(blog => ({
-    title: blog.title,
-    publishedDate: blog.publishedDate,
-    tags: blog.tags || [],
-    filename: blog.yamlFilename,
-    image: blog.image || null,
-    category: blog.category || null,
-  }));
+  const indexData = blogs
+    .filter(blog => blog.title && blog.yamlFilename && !blog.deletedAt)
+    .map(blog => ({
+      title: blog.title,
+      publishedDate: blog.publishedDate,
+      tags: blog.tags || [],
+      filename: blog.yamlFilename,
+      image: blog.image || null,
+      category: blog.category || null,
+    }));
   const yamlContent = yaml.dump(indexData);
   fs.writeFileSync(INDEX_YAML_FILE, yamlContent);
 };
@@ -277,12 +280,34 @@ app.put('/api/blogs/:filename', upload.single('image'), (req, res) => {
 
 app.delete('/api/blogs/:filename', (req, res) => {
   const blogFilePath = path.join(BLOGS_YAML_DIR, req.params.filename);
-  if (!fs.existsSync(blogFilePath)) return res.status(404).send('Blog not found');
+  
+  if (!fs.existsSync(blogFilePath)) {
+    return res.status(404).send('Blog not found');
+  }
 
-  fs.unlinkSync(blogFilePath);
-  const blogs = getAllBlogs();
-  updateIndexYaml(blogs);
-  res.status(204).send();
+  try {
+    // Read existing blog content
+    const existingBlog = yaml.load(fs.readFileSync(blogFilePath, 'utf8'));
+    
+    // Update the blog with deletedAt timestamp
+    const updatedBlog = {
+      ...existingBlog,
+      deletedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save the updated blog with deletedAt field
+    fs.writeFileSync(blogFilePath, yaml.dump(updatedBlog));
+
+    // Update the index (which will now exclude this deleted blog)
+    const blogs = getAllBlogs();
+    updateIndexYaml(blogs);
+
+    res.status(200).json({ message: 'Blog successfully marked as deleted' });
+  } catch (error) {
+    console.error('Error in DELETE /api/blogs/:filename:', error);
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
 });
 
 app.get('/api/index', (req, res) => {
@@ -292,6 +317,56 @@ app.get('/api/index', (req, res) => {
     res.json(indexData);
   } else {
     res.status(404).send('Index file not found');
+  }
+});
+
+// Add new endpoint to get all blogs including deleted ones (for admin purposes)
+app.get('/api/blogs/all/including-deleted', (req, res) => {
+  try {
+    const files = fs.readdirSync(BLOGS_YAML_DIR).filter(file => file.endsWith('.yml') && file !== 'index.yml');
+    const allBlogs = files.map(file => {
+      const filePath = path.join(BLOGS_YAML_DIR, file);
+      const content = yaml.load(fs.readFileSync(filePath, 'utf8'));
+      return { ...content, yamlFilename: file };
+    });
+
+    res.json(allBlogs);
+  } catch (error) {
+    console.error('Error fetching all blogs:', error);
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
+});
+
+// Add endpoint to restore a deleted blog
+app.post('/api/blogs/:filename/restore', (req, res) => {
+  const blogFilePath = path.join(BLOGS_YAML_DIR, req.params.filename);
+  
+  if (!fs.existsSync(blogFilePath)) {
+    return res.status(404).send('Blog not found');
+  }
+
+  try {
+    // Read existing blog content
+    const existingBlog = yaml.load(fs.readFileSync(blogFilePath, 'utf8'));
+    
+    // Remove deletedAt field and update timestamp
+    const { deletedAt, ...restoredBlog } = existingBlog;
+    const updatedBlog = {
+      ...restoredBlog,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save the restored blog
+    fs.writeFileSync(blogFilePath, yaml.dump(updatedBlog));
+
+    // Update the index
+    const blogs = getAllBlogs();
+    updateIndexYaml(blogs);
+
+    res.status(200).json({ message: 'Blog successfully restored', blog: updatedBlog });
+  } catch (error) {
+    console.error('Error restoring blog:', error);
+    res.status(500).json({ message: 'Internal Server Error', error });
   }
 });
 
