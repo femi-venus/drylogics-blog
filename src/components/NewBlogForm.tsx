@@ -73,9 +73,15 @@ function BlogForm() {
   
 
   const handleContentChange = (newContent: string) => {
-    setEditorContent(newContent); 
-    setFormData((prev) => ({ ...prev, content: newContent })); 
+    const styledContent = newContent.replace(
+      /<img /g,
+      '<img style="max-width:100%; height:auto; border-radius:8px; margin:1rem 0; box-shadow:0 4px 8px rgba(0,0,0,0.1);" '
+    );
+  
+    setEditorContent(styledContent);
+    setFormData((prev) => ({ ...prev, content: styledContent }));
   };
+  
 
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,7 +141,16 @@ function BlogForm() {
             showToolbar
             error={false}
             helperText=""
-            sx={{ mb: 2 }}
+            sx={{ mb: 2,
+              "& img": {
+                maxWidth: "100%",    // Ensures the image fits within the content block
+                height: "auto",      // Maintains aspect ratio
+                borderRadius: 2,     // Optional: Rounds image corners
+                boxShadow: 3,        // Optional: Adds a subtle shadow for aesthetics
+                display: "block",    // Prevents inline display issues
+                margin: "1rem auto"  // Centers the image within the content block
+              }
+             }}
           />
           <TextField
             label="Author"
