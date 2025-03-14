@@ -143,12 +143,12 @@ function BlogForm() {
             helperText=""
             sx={{ mb: 2,
               "& img": {
-                maxWidth: "100%",    // Ensures the image fits within the content block
-                height: "auto",      // Maintains aspect ratio
-                borderRadius: 2,     // Optional: Rounds image corners
-                boxShadow: 3,        // Optional: Adds a subtle shadow for aesthetics
-                display: "block",    // Prevents inline display issues
-                margin: "1rem auto"  // Centers the image within the content block
+                display: "block",
+                margin: "0 auto",
+                maxWidth: "100%",
+                height: "auto",
+                borderRadius: 2,
+                boxShadow: 3
               }
              }}
           />
